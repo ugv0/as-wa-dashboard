@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AS WhatsApp Bot Controller - Nemotron 3.5 Bolt</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-base: #090d16;
+            --bg-card: #131c2e;
+            --bg-card-hover: #1b273f;
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text-main: #f8fafc;
+            --text-sub: #94a3b8;
+            --wa-green: #25D366;
+            --wa-emerald: #10b981;
+            --nv-green: #76B900;
+            --accent-blue: #38bdf8;
+            --accent-purple: #a855f7;
+            --accent-amber: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-base);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Ambient Glow Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -20%;
+            left: 20%;
+            width: 60vw;
+            height: 60vh;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(9, 13, 22, 0) 70%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* ----------------- AUTH GATE OVERLAY ----------------- */
+        #authOverlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(9, 13, 22, 0.95);
+            backdrop-filter: blur(20px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1.5rem;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .auth-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .auth-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.2), rgba(118, 185, 0, 0.2));
+            border: 1px solid rgba(37, 211, 102, 0.4);
+            border-radius: 18px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .auth-card h2 {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+
+        .auth-card p {
+            font-size: 0.85rem;
+            color: var(--text-sub);
+            line-height: 1.5;
+        }
+
+        .auth-input-wrapper {
+            position: relative;
+            display: flex;
+        }
+
+        .auth-input {
+            width: 100%;
+            background: #090d16;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+            color: white;
+            font-size: 1.1rem;
+            letter-spacing: 0.1em;
+            font-family: 'JetBrains Mono', monospace;
+            text-align: center;
+            outline: none;
+            transition: all 0.2s ease;
+        }
+
+        .auth-input:focus {
+            border-color: var(--wa-green);
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+        }
+
+        .auth-btn {
+            background: linear-gradient(135deg, var(--wa-green), var(--nv-green));
+            color: #000;
+            border: none;
+            border-radius: 12px;
+            padding: 14px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.15s ease, opacity 0.2s ease;
+        }
+
+        .auth-btn:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+        }
+
+        .auth-error {
+            color: var(--danger);
+            font-size: 0.82rem;
+            font-weight: 500;
+            display: none;
+        }
+
+        /* ----------------- MAIN LAYOUT ----------------- */
+        header {
+            background: rgba(19, 28, 46, 0.7);
+            backdrop-filter: blur(16px);
+            border-bottom: 1px solid var(--border);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .brand-badge {
+            width: 42px;
+            height: 42px;
+            background: linear-gradient(135deg, var(--wa-green), var(--nv-green));
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+        }
+
+        .brand-text h1 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .brand-text p {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+        }
+
+        .header-meta {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            border: 1px solid var(--border);
+            background: rgba(9, 13, 22, 0.8);
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--accent-amber);
+        }
+
+        .dot.online {
+            background: var(--wa-green);
+            box-shadow: 0 0 10px var(--wa-green);
+        }
+
+        .dot.offline {
+            background: var(--danger);
+        }
+
+        .btn-icon {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            color: var(--text-sub);
+            padding: 8px 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-icon:hover {
+            color: white;
+            background: var(--bg-card-hover);
+            border-color: var(--border-hover);
+        }
+
+        .container {
+            max-width: 1380px;
+            margin: 1.5rem auto;
+            padding: 0 1.5rem;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 1.5rem;
+            flex: 1;
+            width: 100%;
+        }
+
+        @media (max-width: 1024px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-header h2 {
+            font-size: 1.05rem;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Controls Grid */
+        .switches-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .switch-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            background: rgba(9, 13, 22, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        .switch-row:hover {
+            border-color: var(--border-hover);
+        }
+
+        .switch-info {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .switch-title {
+            font-size: 0.88rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .switch-desc {
+            font-size: 0.72rem;
+            color: var(--text-sub);
+        }
+
+        .toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider {
+            position: absolute;
+            cursor: pointer;
+            inset: 0;
+            background: #334155;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 24px;
+        }
+
+        .slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background: white;
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+        }
+
+        input:checked + .slider {
+            background: var(--wa-green);
+        }
+
+        input:checked + .slider:before {
+            transform: translateX(20px);
+        }
+
+        /* Connected User Card */
+        .user-preview {
+            background: rgba(9, 13, 22, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 50%;
+            background: rgba(37, 211, 102, 0.15);
+            border: 2px solid var(--wa-green);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--wa-green);
+            flex-shrink: 0;
+        }
+
+        .user-details h3 {
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .user-details p {
+            font-size: 0.75rem;
+            color: var(--text-sub);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        /* Prompt Editor */
+        .prompt-textarea {
+            width: 100%;
+            height: 120px;
+            background: #090d16;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px;
+            color: white;
+            font-size: 0.82rem;
+            line-height: 1.5;
+            resize: vertical;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .prompt-textarea:focus {
+            border-color: var(--nv-green);
+        }
+
+        .btn-save {
+            background: var(--nv-green);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 16px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            align-self: flex-end;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-save:hover {
+            opacity: 0.9;
+        }
+
+        /* ----------------- ACTIVITY FEED ----------------- */
+        .feed-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .filter-group {
+            display: flex;
+            background: rgba(9, 13, 22, 0.7);
+            border-radius: 10px;
+            padding: 3px;
+            border: 1px solid var(--border);
+            gap: 3px;
+        }
+
+        .filter-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-sub);
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 6px 12px;
+            border-radius: 7px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .filter-btn.active {
+            background: var(--bg-card-hover);
+            color: white;
+        }
+
+        .messages-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 720px;
+            overflow-y: auto;
+            padding-right: 6px;
+        }
+
+        .msg-card {
+            background: rgba(9, 13, 22, 0.5);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            border-left: 4px solid var(--border);
+            animation: fadeIn 0.25s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .msg-card.private {
+            border-left-color: var(--wa-green);
+        }
+
+        .msg-card.group-tag {
+            border-left-color: var(--accent-blue);
+        }
+
+        .msg-card.group-swipe {
+            border-left-color: var(--accent-purple);
+        }
+
+        .msg-card.group-all {
+            border-left-color: var(--accent-amber);
+        }
+
+        .msg-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.75rem;
+        }
+
+        .sender-tag {
+            font-weight: 700;
+            color: var(--text-main);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .badge-pill {
+            font-size: 0.65rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            padding: 2px 7px;
+            border-radius: 6px;
+            letter-spacing: 0.04em;
+        }
+
+        .private .badge-pill {
+            background: rgba(37, 211, 102, 0.15);
+            color: var(--wa-green);
+        }
+
+        .group-tag .badge-pill {
+            background: rgba(56, 189, 248, 0.15);
+            color: var(--accent-blue);
+        }
+
+        .group-swipe .badge-pill {
+            background: rgba(168, 85, 247, 0.15);
+            color: var(--accent-purple);
+        }
+
+        .group-all .badge-pill {
+            background: rgba(245, 158, 11, 0.15);
+            color: var(--accent-amber);
+        }
+
+        .time-label {
+            color: var(--text-sub);
+            font-size: 0.7rem;
+        }
+
+        .user-text {
+            font-size: 0.85rem;
+            line-height: 1.45;
+            color: #e2e8f0;
+            word-break: break-word;
+        }
+
+        .ai-reply-box {
+            background: rgba(118, 185, 0, 0.05);
+            border-left: 2px solid var(--nv-green);
+            border-radius: 8px;
+            padding: 8px 12px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            margin-top: 2px;
+        }
+
+        .ai-label {
+            font-size: 0.68rem;
+            color: var(--nv-green);
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .ai-text {
+            font-size: 0.82rem;
+            color: #cbd5e1;
+            line-height: 1.4;
+            word-break: break-word;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 1rem;
+            color: var(--text-sub);
+            font-size: 0.85rem;
+        }
+
+        /* Toast */
+        #toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: rgba(19, 28, 46, 0.95);
+            border: 1px solid var(--wa-green);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+            display: none;
+            z-index: 9999;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 3px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- PASSWORD GATE OVERLAY -->
+    <div id="authOverlay">
+        <div class="auth-card">
+            <div class="auth-icon">🔐</div>
+            <div>
+                <h2>Access Control Panel</h2>
+                <p>Enter the master security password to manage your WhatsApp Nemotron Bot.</p>
+            </div>
+
+            <div class="auth-input-wrapper">
+                <input type="password" id="passwordInput" class="auth-input" placeholder="••••••••" autofocus onkeydown="if(event.key==='Enter') verifyPassword()" />
+            </div>
+
+            <div id="authError" class="auth-error">Incorrect password. Please try again.</div>
+
+            <button class="auth-btn" onclick="verifyPassword()">Unlock Controller</button>
+        </div>
+    </div>
+
+    <!-- MAIN DASHBOARD -->
+    <header>
+        <div class="brand">
+            <div class="brand-badge">⚡</div>
+            <div class="brand-text">
+                <h1>AS WhatsApp Controller <span style="font-size: 0.7rem; font-weight: 700; color: var(--nv-green); border: 1px solid var(--nv-green); border-radius: 6px; padding: 1px 6px;">NEMOTRON 3.5</span></h1>
+                <p>Real-time Control Panel & Activity Monitor</p>
+            </div>
+        </div>
+
+        <div class="header-meta">
+            <div id="statusPill" class="status-badge">
+                <span id="statusDot" class="dot"></span>
+                <span id="statusLabel">Checking Bot...</span>
+            </div>
+            <button class="btn-icon" onclick="fetchBotStatus()" title="Refresh Status">🔄</button>
+            <button class="btn-icon" onclick="logout()" title="Lock / Logout">🔒 Lock</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <!-- LEFT COLUMN: CONTROLS & SETTINGS -->
+        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <!-- WhatsApp Account Card -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>📱 Linked Account</h2>
+                    <span id="relayStatusBadge" style="font-size: 0.72rem; color: var(--text-sub); font-family: 'JetBrains Mono', monospace;">Tunnel: Checking...</span>
+                </div>
+
+                <div class="user-preview">
+                    <div class="user-avatar">💬</div>
+                    <div class="user-details">
+                        <h3 id="waUserName">JAAT SIROHI SHADOW</h3>
+                        <p id="waUserPhone">+918865074645</p>
+                    </div>
+                </div>
+
+                <!-- Custom Tunnel Override if needed -->
+                <details style="font-size: 0.75rem; color: var(--text-sub); cursor: pointer;">
+                    <summary>Custom Relay URL / Override</summary>
+                    <div style="display: flex; gap: 6px; margin-top: 8px;">
+                        <input type="text" id="customTunnelUrl" placeholder="https://....trycloudflare.com" style="flex:1; background:#090d16; border:1px solid var(--border); border-radius:8px; padding:6px 10px; color:white; font-size:0.75rem;" />
+                        <button class="btn-icon" onclick="saveCustomTunnelUrl()">Save</button>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Bot Feature Toggles -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>⚙️ Trigger Controls</h2>
+                    <span style="font-size: 0.72rem; color: var(--text-sub);">Instant Sync</span>
+                </div>
+
+                <div class="switches-grid">
+                    <!-- 1. Master Auto-Reply -->
+                    <div class="switch-row" style="background: rgba(37, 211, 102, 0.05); border-color: rgba(37, 211, 102, 0.2);">
+                        <div class="switch-info">
+                            <span class="switch-title" style="color: var(--wa-green);">⚡ Auto-Reply (Master Switch)</span>
+                            <span class="switch-desc">Globally enable or pause all AI automated responses</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggleAutoReply" checked onchange="updateSetting('autoReply', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 2. Only DM Mode -->
+                    <div class="switch-row">
+                        <div class="switch-info">
+                            <span class="switch-title">💬 Only DM Mode (Ignore Groups)</span>
+                            <span class="switch-desc">If ON, bot will ONLY reply in private 1-on-1 chats and ignore all groups</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggleOnlyDm" onchange="updateSetting('onlyDm', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 3. Self Tag (@Bot in Groups) -->
+                    <div class="switch-row">
+                        <div class="switch-info">
+                            <span class="switch-title">🏷️ Self Tag (@Bot Mentions)</span>
+                            <span class="switch-desc">Reply when someone explicitly mentions/tags the bot in a group</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggleSelfTag" checked onchange="updateSetting('selfTag', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 4. Swipe Reply to Bot in Groups -->
+                    <div class="switch-row">
+                        <div class="switch-info">
+                            <span class="switch-title">↩️ Swipe Reply (Quotes in Groups)</span>
+                            <span class="switch-desc">Reply when someone swipe-quotes a message sent by the bot</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggleSwipeReply" checked onchange="updateSetting('swipeReply', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- 5. All Tag in Groups -->
+                    <div class="switch-row">
+                        <div class="switch-info">
+                            <span class="switch-title">📢 All Tag (@all / @everyone)</span>
+                            <span class="switch-desc">Reply when someone tags the entire group (@all, @everyone, etc.)</span>
+                        </div>
+                        <label class="toggle">
+                            <input type="checkbox" id="toggleAllTag" checked onchange="updateSetting('allTag', this.checked)">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- System Prompt Editor -->
+            <div class="card">
+                <div class="card-header">
+                    <h2>🧠 Nemotron Personality & Prompt</h2>
+                </div>
+                <textarea id="systemPromptInput" class="prompt-textarea" placeholder="Enter system prompt for Nemotron 3.5 Bolt..."></textarea>
+                <button class="btn-save" onclick="saveSystemPrompt()">Save Prompt</button>
+            </div>
+        </div>
+
+        <!-- RIGHT COLUMN: LIVE MESSAGE & EVENT FEED -->
+        <div class="card" style="height: 100%;">
+            <div class="feed-header">
+                <h2>📊 Live Activity & Conversation Feed</h2>
+                <div class="filter-group">
+                    <button id="filterAll" class="filter-btn active" onclick="setFeedFilter('all')">All (<span id="countAll">0</span>)</button>
+                    <button id="filterDm" class="filter-btn" onclick="setFeedFilter('private')">DMs (<span id="countDm">0</span>)</button>
+                    <button id="filterGroup" class="filter-btn" onclick="setFeedFilter('group')">Groups (<span id="countGroup">0</span>)</button>
+                </div>
+            </div>
+
+            <div id="messagesList" class="messages-list">
+                <div class="empty-state">
+                    Waiting for incoming messages or connection events...<br>
+                    <small>Jab koi private message ya group tag aayega, yahan real-time dikhega.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast">Settings Saved!</div>
+
+    <script>
+        const MASTER_PASSWORD = '19902009';
+        let currentFilter = 'all';
+        let allLogs = [];
+        let pollTimer = null;
+
+        // --- AUTH LOGIC ---
+        function checkSavedAuth() {
+            const savedToken = localStorage.getItem('as_wa_token');
+            if (savedToken === MASTER_PASSWORD) {
+                document.getElementById('authOverlay').style.display = 'none';
+                startApp();
+            } else {
+                document.getElementById('authOverlay').style.display = 'flex';
+            }
+        }
+
+        async function verifyPassword() {
+            const input = document.getElementById('passwordInput').value.trim();
+            const err = document.getElementById('authError');
+
+            if (input === MASTER_PASSWORD) {
+                localStorage.setItem('as_wa_token', MASTER_PASSWORD);
+                document.getElementById('authOverlay').style.display = 'none';
+                startApp();
+            } else {
+                err.style.display = 'block';
+                document.getElementById('passwordInput').focus();
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('as_wa_token');
+            window.location.reload();
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        }
+
+        // --- APP INITIALIZATION ---
+        function startApp() {
+            const customUrl = localStorage.getItem('as_wa_custom_tunnel');
+            if (customUrl) {
+                document.getElementById('customTunnelUrl').value = customUrl;
+            }
+
+            fetchBotStatus();
+            if (!pollTimer) {
+                pollTimer = setInterval(fetchBotStatus, 3000);
+            }
+        }
+
+        function saveCustomTunnelUrl() {
+            const url = document.getElementById('customTunnelUrl').value.trim();
+            if (url) {
+                localStorage.setItem('as_wa_custom_tunnel', url);
+            } else {
+                localStorage.removeItem('as_wa_custom_tunnel');
+            }
+            showToast('Relay URL Updated!');
+            fetchBotStatus();
+        }
+
+        // --- FETCH STATUS & SYNC ---
+        async function fetchBotStatus() {
+            const token = localStorage.getItem('as_wa_token') || MASTER_PASSWORD;
+            const customUrl = localStorage.getItem('as_wa_custom_tunnel') || '';
+
+            try {
+                const res = await fetch(`/api/status?token=${token}&botUrl=${encodeURIComponent(customUrl)}`);
+                const data = await res.json();
+
+                renderStatus(data);
+            } catch (err) {
+                console.error('Fetch status failed:', err);
+                updateStatusBadge('offline', 'Offline');
+            }
+        }
+
+        function updateStatusBadge(state, label) {
+            const dot = document.getElementById('statusDot');
+            const lbl = document.getElementById('statusLabel');
+            dot.className = 'dot ' + state;
+            lbl.innerText = label;
+        }
+
+        function renderStatus(data) {
+            const relayBadge = document.getElementById('relayStatusBadge');
+            const userPhone = document.getElementById('waUserPhone');
+            const userName = document.getElementById('waUserName');
+
+            if (data.botUrl) {
+                relayBadge.innerText = 'Tunnel: Active';
+                relayBadge.style.color = 'var(--wa-green)';
+            } else {
+                relayBadge.innerText = 'Tunnel: Waiting for Runner...';
+                relayBadge.style.color = 'var(--accent-amber)';
+            }
+
+            if (data.online && data.status === 'connected') {
+                updateStatusBadge('online', 'Bot Online & Active');
+                if (data.user) {
+                    const phone = data.user.id ? data.user.id.split(':')[0] : '8865074645';
+                    const name = data.user.name || data.user.notify || 'Connected Account';
+                    userPhone.innerText = '+' + phone;
+                    userName.innerText = name;
+                }
+            } else if (data.status === 'qr_ready') {
+                updateStatusBadge('offline', 'Waiting for Auth / QR');
+            } else {
+                updateStatusBadge('offline', data.message || 'Connecting...');
+            }
+
+            // Sync switches if provided
+            if (data.settings) {
+                const s = data.settings;
+                document.getElementById('toggleAutoReply').checked = Boolean(s.autoReply);
+                document.getElementById('toggleOnlyDm').checked = Boolean(s.onlyDm);
+                document.getElementById('toggleSelfTag').checked = Boolean(s.selfTag);
+                document.getElementById('toggleSwipeReply').checked = Boolean(s.swipeReply);
+                document.getElementById('toggleAllTag').checked = Boolean(s.allTag);
+
+                const promptInput = document.getElementById('systemPromptInput');
+                if (!promptInput.dataset.modified && s.systemPrompt) {
+                    promptInput.value = s.systemPrompt;
+                }
+            }
+
+            // Render Messages / Logs
+            allLogs = data.logs || [];
+            renderMessages();
+        }
+
+        // --- UPDATE SETTING ---
+        async function updateSetting(key, val) {
+            const token = localStorage.getItem('as_wa_token') || MASTER_PASSWORD;
+            const customUrl = localStorage.getItem('as_wa_custom_tunnel') || '';
+
+            const payload = {
+                botUrl: customUrl,
+                [key]: val
+            };
+
+            try {
+                const res = await fetch(`/api/settings?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast(`${key} updated: ${val ? 'ON' : 'OFF'}`);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function saveSystemPrompt() {
+            const prompt = document.getElementById('systemPromptInput').value.trim();
+            const token = localStorage.getItem('as_wa_token') || MASTER_PASSWORD;
+            const customUrl = localStorage.getItem('as_wa_custom_tunnel') || '';
+
+            try {
+                const res = await fetch(`/api/settings?token=${token}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ botUrl: customUrl, systemPrompt: prompt })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('systemPromptInput').dataset.modified = "true";
+                    showToast('System Prompt Saved to Nemotron!');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- FEED RENDERING ---
+        function setFeedFilter(filter) {
+            currentFilter = filter;
+            document.getElementById('filterAll').classList.toggle('active', filter === 'all');
+            document.getElementById('filterDm').classList.toggle('active', filter === 'private');
+            document.getElementById('filterGroup').classList.toggle('active', filter === 'group');
+            renderMessages();
+        }
+
+        function renderMessages() {
+            const container = document.getElementById('messagesList');
+            const countAll = document.getElementById('countAll');
+            const countDm = document.getElementById('countDm');
+            const countGroup = document.getElementById('countGroup');
+
+            // Count incoming message cards
+            const incomingEvents = allLogs.filter(l => l.type === 'incoming');
+            const dmEvents = incomingEvents.filter(l => l.details && !l.details.isGroup);
+            const groupEvents = incomingEvents.filter(l => l.details && l.details.isGroup);
+
+            countAll.innerText = incomingEvents.length;
+            countDm.innerText = dmEvents.length;
+            countGroup.innerText = groupEvents.length;
+
+            let filtered = incomingEvents;
+            if (currentFilter === 'private') {
+                filtered = dmEvents;
+            } else if (currentFilter === 'group') {
+                filtered = groupEvents;
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        No messages yet under this category.<br>
+                        <small>Jab koi message aayega, yahan real-time dikhega.</small>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(log => {
+                const d = log.details || {};
+                const chatType = d.chatType || 'PRIVATE';
+                const triggerReason = d.triggerReason || '';
+                const sender = d.senderName || d.from || 'User';
+                const text = d.text || log.message;
+
+                // Match associated reply from logs
+                const nextReply = allLogs.find(l => l.type === 'reply' && l.id > log.id && (l.details?.to === d.from || l.time === log.time));
+                const replyText = nextReply?.details?.reply || null;
+
+                let cardClass = 'private';
+                let badgeLabel = 'DM';
+
+                if (d.isGroup) {
+                    if (triggerReason.includes('ALL')) {
+                        cardClass = 'group-all';
+                        badgeLabel = '@ALL TAG';
+                    } else if (triggerReason.includes('QUOTE') || triggerReason.includes('SWIPE')) {
+                        cardClass = 'group-swipe';
+                        badgeLabel = 'SWIPE REPLY';
+                    } else {
+                        cardClass = 'group-tag';
+                        badgeLabel = '@BOT TAG';
+                    }
+                }
+
+                return `
+                    <div class="msg-card ${cardClass}">
+                        <div class="msg-meta">
+                            <span class="sender-tag">
+                                <span>${escapeHtml(sender)}</span>
+                                <span class="badge-pill">${badgeLabel}</span>
+                            </span>
+                            <span class="time-label">${log.time}</span>
+                        </div>
+                        <div class="user-text">${escapeHtml(text)}</div>
+                        ${replyText ? `
+                            <div class="ai-reply-box">
+                                <span class="ai-label">Nemotron 3.5 Bolt Reply</span>
+                                <span class="ai-text">${escapeHtml(replyText)}</span>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;');
+        }
+
+        // On load
+        checkSavedAuth();
+    </script>
+</body>
+</html>

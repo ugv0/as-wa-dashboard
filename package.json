@@ -1,0 +1,9 @@
+{
+  "name": "as-wa-dashboard",
+  "version": "1.0.0",
+  "description": "Vercel Control Panel for AS WhatsApp Nemotron AI Bot",
+  "scripts": {
+    "start": "node -e \"console.log('Ready for Vercel deployment!')\""
+  },
+  "dependencies": {}
+}
