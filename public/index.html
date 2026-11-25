@@ -2,166 +2,154 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AS WhatsApp Bot Controller - Nemotron 3.5 Bolt</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AS WhatsApp Controller - iOS Dark</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --bg-base: #090d16;
-            --bg-card: #131c2e;
-            --bg-card-hover: #1b273f;
-            --border: rgba(255, 255, 255, 0.08);
-            --border-hover: rgba(255, 255, 255, 0.16);
-            --text-main: #f8fafc;
-            --text-sub: #94a3b8;
-            --wa-green: #25D366;
-            --wa-emerald: #10b981;
-            --nv-green: #76B900;
-            --accent-blue: #38bdf8;
-            --accent-purple: #a855f7;
-            --accent-amber: #f59e0b;
-            --danger: #ef4444;
+            --ios-bg: #000000;
+            --ios-card: #1c1c1e;
+            --ios-card-secondary: #2c2c2e;
+            --ios-card-tertiary: #3a3a3c;
+            --ios-divider: rgba(255, 255, 255, 0.08);
+            --ios-text: #ffffff;
+            --ios-text-secondary: rgba(235, 235, 245, 0.6);
+            --ios-text-tertiary: rgba(235, 235, 245, 0.35);
+            
+            --ios-green: #34c759;
+            --ios-green-tint: rgba(52, 199, 89, 0.15);
+            --ios-blue: #0a84ff;
+            --ios-blue-tint: rgba(10, 132, 255, 0.15);
+            --ios-red: #ff453a;
+            --ios-red-tint: rgba(255, 69, 58, 0.15);
+            --ios-orange: #ff9f0a;
+            --ios-orange-tint: rgba(255, 159, 10, 0.15);
+            --ios-purple: #bf5af2;
+            --ios-purple-tint: rgba(191, 90, 242, 0.15);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Plus Jakarta Sans', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+            font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Plus Jakarta Sans", Helvetica, Arial, sans-serif;
         }
 
         body {
-            background-color: var(--bg-base);
-            color: var(--text-main);
+            background-color: var(--ios-bg);
+            color: var(--ios-text);
             min-height: 100vh;
             display: flex;
             flex-direction: column;
             overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Ambient Glow Background */
-        body::before {
-            content: '';
-            position: fixed;
-            top: -20%;
-            left: 20%;
-            width: 60vw;
-            height: 60vh;
-            background: radial-gradient(circle, rgba(16, 185, 129, 0.08) 0%, rgba(9, 13, 22, 0) 70%);
-            z-index: -1;
-            pointer-events: none;
-        }
-
-        /* ----------------- AUTH GATE OVERLAY ----------------- */
+        /* ----------------- PASSCODE LOCK OVERLAY ----------------- */
         #authOverlay {
             position: fixed;
             inset: 0;
-            background: rgba(9, 13, 22, 0.95);
-            backdrop-filter: blur(20px);
+            background: #000000;
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 1000;
             padding: 1.5rem;
+        }
+
+        .ios-lock-card {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.5rem;
+            width: 100%;
+            max-width: 320px;
+            text-align: center;
             animation: fadeIn 0.3s ease;
         }
 
-        .auth-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 24px;
-            padding: 2.5rem;
-            width: 100%;
-            max-width: 420px;
-            text-align: center;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.6);
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
-
-        .auth-icon {
-            width: 64px;
-            height: 64px;
-            background: linear-gradient(135deg, rgba(37, 211, 102, 0.2), rgba(118, 185, 0, 0.2));
-            border: 1px solid rgba(37, 211, 102, 0.4);
-            border-radius: 18px;
-            margin: 0 auto;
+        .lock-glyph {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: var(--ios-card-secondary);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 28px;
+            font-size: 24px;
         }
 
-        .auth-card h2 {
-            font-size: 1.4rem;
-            font-weight: 800;
+        .lock-title {
+            font-size: 1.35rem;
+            font-weight: 700;
             letter-spacing: -0.02em;
         }
 
-        .auth-card p {
+        .lock-subtitle {
             font-size: 0.85rem;
-            color: var(--text-sub);
-            line-height: 1.5;
+            color: var(--ios-text-secondary);
+            margin-top: 4px;
         }
 
-        .auth-input-wrapper {
-            position: relative;
-            display: flex;
-        }
-
-        .auth-input {
+        .passcode-input-wrapper {
             width: 100%;
-            background: #090d16;
-            border: 1px solid var(--border);
-            border-radius: 12px;
+        }
+
+        .passcode-input {
+            width: 100%;
+            background: var(--ios-card);
+            border: 1px solid var(--ios-divider);
+            border-radius: 14px;
             padding: 14px 16px;
-            color: white;
-            font-size: 1.1rem;
-            letter-spacing: 0.1em;
-            font-family: 'JetBrains Mono', monospace;
+            color: #fff;
+            font-size: 1.25rem;
+            letter-spacing: 0.2em;
             text-align: center;
             outline: none;
+            font-family: 'JetBrains Mono', monospace;
             transition: all 0.2s ease;
         }
 
-        .auth-input:focus {
-            border-color: var(--wa-green);
-            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.15);
+        .passcode-input:focus {
+            border-color: var(--ios-blue);
+            background: #252528;
         }
 
-        .auth-btn {
-            background: linear-gradient(135deg, var(--wa-green), var(--nv-green));
-            color: #000;
+        .passcode-btn {
+            width: 100%;
+            background: var(--ios-blue);
+            color: #ffffff;
             border: none;
-            border-radius: 12px;
+            border-radius: 14px;
             padding: 14px;
             font-size: 0.95rem;
-            font-weight: 700;
+            font-weight: 600;
             cursor: pointer;
-            transition: transform 0.15s ease, opacity 0.2s ease;
+            transition: opacity 0.2s ease, transform 0.1s ease;
         }
 
-        .auth-btn:hover {
-            opacity: 0.95;
-            transform: translateY(-1px);
+        .passcode-btn:active {
+            opacity: 0.8;
+            transform: scale(0.98);
         }
 
-        .auth-error {
-            color: var(--danger);
-            font-size: 0.82rem;
+        .passcode-error {
+            color: var(--ios-red);
+            font-size: 0.8rem;
             font-weight: 500;
             display: none;
         }
 
-        /* ----------------- MAIN LAYOUT ----------------- */
+        /* ----------------- iOS NAVIGATION BAR ----------------- */
         header {
-            background: rgba(19, 28, 46, 0.7);
-            backdrop-filter: blur(16px);
-            border-bottom: 1px solid var(--border);
-            padding: 1rem 2rem;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid var(--ios-divider);
+            padding: 0.85rem 1.5rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
@@ -170,841 +158,1001 @@
             z-index: 50;
         }
 
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-        }
-
-        .brand-badge {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(135deg, var(--wa-green), var(--nv-green));
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            font-weight: 800;
-            box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
-        }
-
-        .brand-text h1 {
-            font-size: 1.15rem;
-            font-weight: 800;
+        .nav-title-group h1 {
+            font-size: 1.05rem;
+            font-weight: 700;
             letter-spacing: -0.02em;
             display: flex;
             align-items: center;
             gap: 8px;
         }
 
-        .brand-text p {
-            font-size: 0.75rem;
-            color: var(--text-sub);
+        .nav-title-group p {
+            font-size: 0.72rem;
+            color: var(--ios-text-secondary);
         }
 
-        .header-meta {
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ios-status-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--ios-card);
+            border: 1px solid var(--ios-divider);
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        .dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--ios-orange);
+        }
+
+        .dot.online {
+            background: var(--ios-green);
+            box-shadow: 0 0 8px var(--ios-green);
+        }
+
+        .dot.offline {
+            background: var(--ios-red);
+        }
+
+        .ios-icon-btn {
+            background: var(--ios-card);
+            border: 1px solid var(--ios-divider);
+            color: var(--ios-text-secondary);
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .ios-icon-btn:hover {
+            color: #fff;
+            background: var(--ios-card-secondary);
+        }
+
+        /* ----------------- CONTAINER ----------------- */
+        .main-layout {
+            max-width: 1200px;
+            margin: 1.25rem auto;
+            padding: 0 1rem 2rem 1rem;
+            display: grid;
+            grid-template-columns: 460px 1fr;
+            gap: 1.25rem;
+            width: 100%;
+        }
+
+        @media (max-width: 960px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .column {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* ----------------- iOS INSET GROUPED CARDS ----------------- */
+        .ios-section-header {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: var(--ios-text-tertiary);
+            padding: 0 0.5rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .ios-card {
+            background: var(--ios-card);
+            border-radius: 18px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--ios-divider);
+        }
+
+        /* ----------------- DEVICE & RE-PAIRING COMPONENT ----------------- */
+        .device-box {
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .device-connected-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .device-identity {
             display: flex;
             align-items: center;
             gap: 12px;
         }
 
-        .status-badge {
-            display: inline-flex;
+        .device-icon-wrap {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: var(--ios-green-tint);
+            border: 1px solid rgba(52, 199, 89, 0.3);
+            display: flex;
             align-items: center;
-            gap: 8px;
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border: 1px solid var(--border);
-            background: rgba(9, 13, 22, 0.8);
+            justify-content: center;
+            font-size: 22px;
+            color: var(--ios-green);
         }
 
-        .dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            background: var(--accent-amber);
+        .device-name {
+            font-size: 0.95rem;
+            font-weight: 700;
         }
 
-        .dot.online {
-            background: var(--wa-green);
-            box-shadow: 0 0 10px var(--wa-green);
+        .device-phone {
+            font-size: 0.78rem;
+            color: var(--ios-text-secondary);
+            font-family: 'JetBrains Mono', monospace;
         }
 
-        .dot.offline {
-            background: var(--danger);
-        }
-
-        .btn-icon {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border);
+        .btn-destructive {
+            background: var(--ios-red-tint);
+            color: var(--ios-red);
+            border: 1px solid rgba(255, 69, 58, 0.3);
             border-radius: 10px;
-            color: var(--text-sub);
             padding: 8px 12px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.2s ease;
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
         }
 
-        .btn-icon:hover {
-            color: white;
-            background: var(--bg-card-hover);
-            border-color: var(--border-hover);
+        .btn-destructive:hover {
+            background: var(--ios-red);
+            color: #fff;
         }
 
-        .container {
-            max-width: 1380px;
-            margin: 1.5rem auto;
-            padding: 0 1.5rem;
-            display: grid;
-            grid-template-columns: 460px 1fr;
-            gap: 1.5rem;
+        /* Segmented Control */
+        .ios-segmented {
+            background: #151517;
+            padding: 3px;
+            border-radius: 10px;
+            display: flex;
+            gap: 3px;
+            margin-bottom: 0.75rem;
+        }
+
+        .seg-btn {
             flex: 1;
-            width: 100%;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            padding: 7px 10px;
+            color: var(--ios-text-secondary);
+            font-size: 0.78rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        @media (max-width: 1024px) {
-            .container {
-                grid-template-columns: 1fr;
-            }
+        .seg-btn.active {
+            background: var(--ios-card-secondary);
+            color: #fff;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
         }
 
-        .card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 1.5rem;
+        /* Pairing Form */
+        .pair-input-group {
             display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .card-header h2 {
-            font-size: 1.05rem;
-            font-weight: 700;
-            letter-spacing: -0.01em;
-            display: flex;
-            align-items: center;
             gap: 8px;
         }
 
-        /* Controls Grid */
-        .switches-grid {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .switch-row {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 14px;
-            background: rgba(9, 13, 22, 0.6);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            transition: border-color 0.2s ease;
-        }
-
-        .switch-row:hover {
-            border-color: var(--border-hover);
-        }
-
-        .switch-info {
-            display: flex;
-            flex-direction: column;
-            gap: 3px;
-        }
-
-        .switch-title {
+        .ios-input {
+            flex: 1;
+            background: #151517;
+            border: 1px solid var(--ios-divider);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
             font-size: 0.88rem;
+            font-family: 'JetBrains Mono', monospace;
+            outline: none;
+        }
+
+        .ios-input:focus {
+            border-color: var(--ios-blue);
+        }
+
+        .btn-primary {
+            background: var(--ios-blue);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 10px 14px;
+            font-size: 0.82rem;
             font-weight: 600;
+            cursor: pointer;
+            transition: opacity 0.2s ease;
+        }
+
+        .btn-primary:active {
+            opacity: 0.8;
+        }
+
+        /* Large Pairing Code Box */
+        .code-box {
+            background: #151517;
+            border: 1px solid var(--ios-divider);
+            border-radius: 12px;
+            padding: 1rem;
+            text-align: center;
             display: flex;
+            flex-direction: column;
             align-items: center;
             gap: 6px;
         }
 
-        .switch-desc {
-            font-size: 0.72rem;
-            color: var(--text-sub);
+        .code-val {
+            font-size: 1.7rem;
+            font-weight: 800;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.15em;
+            color: var(--ios-green);
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(52, 199, 89, 0.3);
+            border-radius: 8px;
+            padding: 6px 14px;
+            cursor: pointer;
+            user-select: all;
         }
 
-        .toggle {
-            position: relative;
-            display: inline-block;
-            width: 44px;
-            height: 24px;
+        /* QR Code Container */
+        .qr-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 1.25rem;
+            background: #151517;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .qr-img {
+            width: 200px;
+            height: 200px;
+            border-radius: 10px;
+            background: #fff;
+            padding: 6px;
+        }
+
+        /* ----------------- iOS SETTINGS LIST ----------------- */
+        .ios-list-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--ios-divider);
+            transition: background 0.15s ease;
+        }
+
+        .ios-list-row:last-child {
+            border-bottom: none;
+        }
+
+        .row-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .row-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
             flex-shrink: 0;
         }
 
-        .toggle input {
+        .row-text h4 {
+            font-size: 0.88rem;
+            font-weight: 600;
+        }
+
+        .row-text p {
+            font-size: 0.72rem;
+            color: var(--ios-text-secondary);
+        }
+
+        /* Authentic iOS Switch Toggle */
+        .ios-switch {
+            position: relative;
+            display: inline-block;
+            width: 51px;
+            height: 31px;
+            flex-shrink: 0;
+        }
+
+        .ios-switch input {
             opacity: 0;
             width: 0;
             height: 0;
         }
 
-        .slider {
+        .switch-slider {
             position: absolute;
             cursor: pointer;
             inset: 0;
-            background: #334155;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border-radius: 24px;
+            background: #39393d;
+            border-radius: 31px;
+            transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        .slider:before {
+        .switch-slider:before {
             position: absolute;
             content: "";
-            height: 18px;
-            width: 18px;
-            left: 3px;
-            bottom: 3px;
-            background: white;
-            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            height: 27px;
+            width: 27px;
+            left: 2px;
+            bottom: 2px;
+            background: #ffffff;
             border-radius: 50%;
+            transition: 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
         }
 
-        input:checked + .slider {
-            background: var(--wa-green);
+        input:checked + .switch-slider {
+            background: var(--ios-green);
         }
 
-        input:checked + .slider:before {
+        input:checked + .switch-slider:before {
             transform: translateX(20px);
         }
 
-        /* Connected User Card */
-        .user-preview {
-            background: rgba(9, 13, 22, 0.6);
-            border: 1px solid var(--border);
-            border-radius: 14px;
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .user-avatar {
-            width: 46px;
-            height: 46px;
-            border-radius: 50%;
-            background: rgba(37, 211, 102, 0.15);
-            border: 2px solid var(--wa-green);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-            color: var(--wa-green);
-            flex-shrink: 0;
-        }
-
-        .user-details h3 {
-            font-size: 0.95rem;
-            font-weight: 700;
-        }
-
-        .user-details p {
-            font-size: 0.75rem;
-            color: var(--text-sub);
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* Prompt Editor */
-        .prompt-textarea {
-            width: 100%;
-            height: 120px;
-            background: #090d16;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 12px;
-            color: white;
-            font-size: 0.82rem;
-            line-height: 1.5;
-            resize: vertical;
-            outline: none;
-            transition: border-color 0.2s ease;
-        }
-
-        .prompt-textarea:focus {
-            border-color: var(--nv-green);
-        }
-
-        .btn-save {
-            background: var(--nv-green);
-            color: #000;
-            border: none;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-size: 0.82rem;
-            font-weight: 700;
-            cursor: pointer;
-            align-self: flex-end;
-            transition: opacity 0.2s ease;
-        }
-
-        .btn-save:hover {
-            opacity: 0.9;
-        }
-
-        /* ----------------- ACTIVITY FEED ----------------- */
-        .feed-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .filter-group {
-            display: flex;
-            background: rgba(9, 13, 22, 0.7);
-            border-radius: 10px;
-            padding: 3px;
-            border: 1px solid var(--border);
-            gap: 3px;
-        }
-
-        .filter-btn {
-            background: transparent;
-            border: none;
-            color: var(--text-sub);
-            font-size: 0.75rem;
-            font-weight: 600;
-            padding: 6px 12px;
-            border-radius: 7px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .filter-btn.active {
-            background: var(--bg-card-hover);
-            color: white;
-        }
-
-        .messages-list {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-            max-height: 720px;
-            overflow-y: auto;
-            padding-right: 6px;
-        }
-
-        .msg-card {
-            background: rgba(9, 13, 22, 0.5);
-            border: 1px solid var(--border);
-            border-radius: 14px;
+        /* ----------------- PROMPT EDITOR ----------------- */
+        .prompt-box {
             padding: 1rem 1.25rem;
             display: flex;
             flex-direction: column;
+            gap: 10px;
+        }
+
+        .ios-textarea {
+            width: 100%;
+            height: 95px;
+            background: #151517;
+            border: 1px solid var(--ios-divider);
+            border-radius: 10px;
+            padding: 10px 12px;
+            color: #fff;
+            font-size: 0.8rem;
+            line-height: 1.45;
+            resize: vertical;
+            outline: none;
+        }
+
+        .ios-textarea:focus {
+            border-color: var(--ios-blue);
+        }
+
+        /* ----------------- CONVERSATION / MESSAGE FEED ----------------- */
+        .feed-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            padding: 1rem 1.25rem;
+            max-height: 700px;
+            overflow-y: auto;
+        }
+
+        .msg-bubble {
+            background: var(--ios-card);
+            border: 1px solid var(--ios-divider);
+            border-radius: 14px;
+            padding: 12px 14px;
+            display: flex;
+            flex-direction: column;
             gap: 8px;
-            border-left: 4px solid var(--border);
-            animation: fadeIn 0.25s ease;
+            animation: fadeIn 0.2s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(-4px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .msg-card.private {
-            border-left-color: var(--wa-green);
-        }
-
-        .msg-card.group-tag {
-            border-left-color: var(--accent-blue);
-        }
-
-        .msg-card.group-swipe {
-            border-left-color: var(--accent-purple);
-        }
-
-        .msg-card.group-all {
-            border-left-color: var(--accent-amber);
-        }
-
-        .msg-meta {
+        .msg-top {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            font-size: 0.75rem;
+            font-size: 0.72rem;
         }
 
-        .sender-tag {
+        .msg-author {
             font-weight: 700;
-            color: var(--text-main);
             display: flex;
             align-items: center;
             gap: 6px;
         }
 
-        .badge-pill {
+        .ios-badge {
             font-size: 0.65rem;
-            font-weight: 800;
-            text-transform: uppercase;
+            font-weight: 700;
             padding: 2px 7px;
             border-radius: 6px;
-            letter-spacing: 0.04em;
+            text-transform: uppercase;
         }
 
-        .private .badge-pill {
-            background: rgba(37, 211, 102, 0.15);
-            color: var(--wa-green);
+        .badge-dm {
+            background: var(--ios-green-tint);
+            color: var(--ios-green);
         }
 
-        .group-tag .badge-pill {
-            background: rgba(56, 189, 248, 0.15);
-            color: var(--accent-blue);
+        .badge-tag {
+            background: var(--ios-blue-tint);
+            color: var(--ios-blue);
         }
 
-        .group-swipe .badge-pill {
-            background: rgba(168, 85, 247, 0.15);
-            color: var(--accent-purple);
+        .badge-swipe {
+            background: var(--ios-purple-tint);
+            color: var(--ios-purple);
         }
 
-        .group-all .badge-pill {
-            background: rgba(245, 158, 11, 0.15);
-            color: var(--accent-amber);
+        .badge-all {
+            background: var(--ios-orange-tint);
+            color: var(--ios-orange);
         }
 
-        .time-label {
-            color: var(--text-sub);
-            font-size: 0.7rem;
+        .msg-time {
+            color: var(--ios-text-tertiary);
         }
 
-        .user-text {
-            font-size: 0.85rem;
-            line-height: 1.45;
-            color: #e2e8f0;
+        .msg-body {
+            font-size: 0.83rem;
+            line-height: 1.4;
+            color: #e5e5ea;
             word-break: break-word;
         }
 
-        .ai-reply-box {
-            background: rgba(118, 185, 0, 0.05);
-            border-left: 2px solid var(--nv-green);
+        .reply-bubble {
+            background: rgba(52, 199, 89, 0.06);
+            border-left: 2px solid var(--ios-green);
             border-radius: 8px;
-            padding: 8px 12px;
+            padding: 8px 10px;
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            margin-top: 2px;
+            gap: 3px;
         }
 
-        .ai-label {
-            font-size: 0.68rem;
-            color: var(--nv-green);
+        .reply-lbl {
+            font-size: 0.65rem;
+            color: var(--ios-green);
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 0.05em;
         }
 
-        .ai-text {
-            font-size: 0.82rem;
-            color: #cbd5e1;
-            line-height: 1.4;
+        .reply-txt {
+            font-size: 0.8rem;
+            color: #d1d1d6;
+            line-height: 1.35;
             word-break: break-word;
         }
 
-        .empty-state {
+        .empty-feed {
             text-align: center;
             padding: 4rem 1rem;
-            color: var(--text-sub);
-            font-size: 0.85rem;
+            color: var(--ios-text-tertiary);
+            font-size: 0.82rem;
         }
 
         /* Toast */
-        #toast {
+        #iosToast {
             position: fixed;
             bottom: 24px;
-            right: 24px;
-            background: rgba(19, 28, 46, 0.95);
-            border: 1px solid var(--wa-green);
-            color: white;
-            padding: 12px 20px;
-            border-radius: 12px;
-            font-size: 0.85rem;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 30, 30, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--ios-divider);
+            color: #fff;
+            padding: 10px 20px;
+            border-radius: 24px;
+            font-size: 0.82rem;
             font-weight: 600;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
             display: none;
             z-index: 9999;
-            animation: slideUp 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            animation: popUp 0.25s ease;
         }
 
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes popUp {
+            from { transform: translate(-50%, 15px); opacity: 0; }
+            to { transform: translate(-50%, 0); opacity: 1; }
         }
 
         ::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #334155;
-            border-radius: 3px;
+            background: #2c2c2e;
+            border-radius: 2px;
         }
     </style>
 </head>
 <body>
 
-    <!-- PASSWORD GATE OVERLAY -->
+    <!-- ----------------- PASSCODE SCREEN (19902009) ----------------- -->
     <div id="authOverlay">
-        <div class="auth-card">
-            <div class="auth-icon">🔐</div>
+        <div class="ios-lock-card">
+            <div class="lock-glyph">🔒</div>
             <div>
-                <h2>Access Control Panel</h2>
-                <p>Enter the master security password to manage your WhatsApp Nemotron Bot.</p>
+                <div class="lock-title">AS Controller</div>
+                <div class="lock-subtitle">Enter security passcode to unlock</div>
             </div>
 
-            <div class="auth-input-wrapper">
-                <input type="password" id="passwordInput" class="auth-input" placeholder="••••••••" autofocus onkeydown="if(event.key==='Enter') verifyPassword()" />
+            <div class="passcode-input-wrapper">
+                <input type="password" id="passcodeInput" class="passcode-input" placeholder="••••••••" autofocus onkeydown="if(event.key==='Enter') submitPasscode()" />
             </div>
 
-            <div id="authError" class="auth-error">Incorrect password. Please try again.</div>
+            <div id="passcodeError" class="passcode-error">Incorrect passcode. Try again.</div>
 
-            <button class="auth-btn" onclick="verifyPassword()">Unlock Controller</button>
+            <button class="passcode-btn" onclick="submitPasscode()">Unlock</button>
         </div>
     </div>
 
-    <!-- MAIN DASHBOARD -->
+    <!-- ----------------- NAVIGATION ----------------- -->
     <header>
-        <div class="brand">
-            <div class="brand-badge">⚡</div>
-            <div class="brand-text">
-                <h1>AS WhatsApp Controller <span style="font-size: 0.7rem; font-weight: 700; color: var(--nv-green); border: 1px solid var(--nv-green); border-radius: 6px; padding: 1px 6px;">NEMOTRON 3.5</span></h1>
-                <p>Real-time Control Panel & Activity Monitor</p>
-            </div>
+        <div class="nav-title-group">
+            <h1>WhatsApp Controller</h1>
+            <p>NVIDIA Nemotron 3.5 Bolt</p>
         </div>
 
-        <div class="header-meta">
-            <div id="statusPill" class="status-badge">
-                <span id="statusDot" class="dot"></span>
-                <span id="statusLabel">Checking Bot...</span>
+        <div class="nav-actions">
+            <div class="ios-status-pill">
+                <span id="navDot" class="dot"></span>
+                <span id="navStatusText">Connecting...</span>
             </div>
-            <button class="btn-icon" onclick="fetchBotStatus()" title="Refresh Status">🔄</button>
-            <button class="btn-icon" onclick="logout()" title="Lock / Logout">🔒 Lock</button>
+            <button class="ios-icon-btn" onclick="fetchStatus()" title="Refresh">🔄</button>
+            <button class="ios-icon-btn" onclick="lockDashboard()" title="Lock Screen">🔒</button>
         </div>
     </header>
 
-    <div class="container">
-        <!-- LEFT COLUMN: CONTROLS & SETTINGS -->
-        <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    <div class="main-layout">
+        <!-- LEFT COLUMN: DEVICE & SETTINGS -->
+        <div class="column">
             
-            <!-- WhatsApp Account Card -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>📱 Linked Account</h2>
-                    <span id="relayStatusBadge" style="font-size: 0.72rem; color: var(--text-sub); font-family: 'JetBrains Mono', monospace;">Tunnel: Checking...</span>
-                </div>
-
-                <div class="user-preview">
-                    <div class="user-avatar">💬</div>
-                    <div class="user-details">
-                        <h3 id="waUserName">JAAT SIROHI SHADOW</h3>
-                        <p id="waUserPhone">+918865074645</p>
-                    </div>
-                </div>
-
-                <!-- Custom Tunnel Override if needed -->
-                <details style="font-size: 0.75rem; color: var(--text-sub); cursor: pointer;">
-                    <summary>Custom Relay URL / Override</summary>
-                    <div style="display: flex; gap: 6px; margin-top: 8px;">
-                        <input type="text" id="customTunnelUrl" placeholder="https://....trycloudflare.com" style="flex:1; background:#090d16; border:1px solid var(--border); border-radius:8px; padding:6px 10px; color:white; font-size:0.75rem;" />
-                        <button class="btn-icon" onclick="saveCustomTunnelUrl()">Save</button>
-                    </div>
-                </details>
-            </div>
-
-            <!-- Bot Feature Toggles -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>⚙️ Trigger Controls</h2>
-                    <span style="font-size: 0.72rem; color: var(--text-sub);">Instant Sync</span>
-                </div>
-
-                <div class="switches-grid">
-                    <!-- 1. Master Auto-Reply -->
-                    <div class="switch-row" style="background: rgba(37, 211, 102, 0.05); border-color: rgba(37, 211, 102, 0.2);">
-                        <div class="switch-info">
-                            <span class="switch-title" style="color: var(--wa-green);">⚡ Auto-Reply (Master Switch)</span>
-                            <span class="switch-desc">Globally enable or pause all AI automated responses</span>
+            <!-- 1. DEVICE LINKING & RE-PAIR CARD -->
+            <div>
+                <div class="ios-section-header">WhatsApp Account</div>
+                <div class="ios-card">
+                    <div class="device-box">
+                        
+                        <!-- When Connected -->
+                        <div id="viewConnected" style="display: none;" class="device-connected-row">
+                            <div class="device-identity">
+                                <div class="device-icon-wrap">✓</div>
+                                <div>
+                                    <div class="device-name" id="dispUserName">WhatsApp Account</div>
+                                    <div class="device-phone" id="dispUserPhone">+91XXXXXXXXXX</div>
+                                </div>
+                            </div>
+                            <button class="btn-destructive" onclick="disconnectDevice()">Disconnect</button>
                         </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="toggleAutoReply" checked onchange="updateSetting('autoReply', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
 
-                    <!-- 2. Only DM Mode -->
-                    <div class="switch-row">
-                        <div class="switch-info">
-                            <span class="switch-title">💬 Only DM Mode (Ignore Groups)</span>
-                            <span class="switch-desc">If ON, bot will ONLY reply in private 1-on-1 chats and ignore all groups</span>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="toggleOnlyDm" onchange="updateSetting('onlyDm', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+                        <!-- When Disconnected / Re-Pair Mode -->
+                        <div id="viewPairing">
+                            <div class="ios-segmented">
+                                <button id="tabPairing" class="seg-btn active" onclick="switchLinkMode('pairing')">Pairing Code</button>
+                                <button id="tabQR" class="seg-btn" onclick="switchLinkMode('qr')">QR Code</button>
+                            </div>
 
-                    <!-- 3. Self Tag (@Bot in Groups) -->
-                    <div class="switch-row">
-                        <div class="switch-info">
-                            <span class="switch-title">🏷️ Self Tag (@Bot Mentions)</span>
-                            <span class="switch-desc">Reply when someone explicitly mentions/tags the bot in a group</span>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="toggleSelfTag" checked onchange="updateSetting('selfTag', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+                            <!-- Mode A: Pairing Code -->
+                            <div id="boxPairingCode" style="display: flex; flex-direction: column; gap: 10px;">
+                                <div class="pair-input-group">
+                                    <input type="text" id="phoneInput" class="ios-input" placeholder="e.g. 918865074645" />
+                                    <button class="btn-primary" id="btnGetCode" onclick="requestPairing()">Get Code</button>
+                                </div>
 
-                    <!-- 4. Swipe Reply to Bot in Groups -->
-                    <div class="switch-row">
-                        <div class="switch-info">
-                            <span class="switch-title">↩️ Swipe Reply (Quotes in Groups)</span>
-                            <span class="switch-desc">Reply when someone swipe-quotes a message sent by the bot</span>
-                        </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="toggleSwipeReply" checked onchange="updateSetting('swipeReply', this.checked)">
-                            <span class="slider"></span>
-                        </label>
-                    </div>
+                                <div id="pairingCodeResult" style="display: none;" class="code-box">
+                                    <span style="font-size: 0.72rem; color: var(--ios-text-secondary); text-transform: uppercase;">Pairing Code:</span>
+                                    <div class="code-val" id="dispPairingCode" onclick="copyCode()" title="Tap to copy">----</div>
+                                    <span style="font-size: 0.7rem; color: var(--ios-text-tertiary);">Tap code to copy</span>
+                                </div>
 
-                    <!-- 5. All Tag in Groups -->
-                    <div class="switch-row">
-                        <div class="switch-info">
-                            <span class="switch-title">📢 All Tag (@all / @everyone)</span>
-                            <span class="switch-desc">Reply when someone tags the entire group (@all, @everyone, etc.)</span>
+                                <div id="pairError" style="display: none; color: var(--ios-red); font-size: 0.75rem;"></div>
+                            </div>
+
+                            <!-- Mode B: QR Code -->
+                            <div id="boxQR" style="display: none;" class="qr-wrap">
+                                <img id="qrImage" class="qr-img" src="" alt="WhatsApp QR" />
+                                <span style="font-size: 0.72rem; color: var(--ios-text-secondary); margin-top: 8px;">Scan with WhatsApp Camera</span>
+                            </div>
                         </div>
-                        <label class="toggle">
-                            <input type="checkbox" id="toggleAllTag" checked onchange="updateSetting('allTag', this.checked)">
-                            <span class="slider"></span>
-                        </label>
+
                     </div>
                 </div>
             </div>
 
-            <!-- System Prompt Editor -->
-            <div class="card">
-                <div class="card-header">
-                    <h2>🧠 Nemotron Personality & Prompt</h2>
+            <!-- 2. iOS CONTROLS & TOGGLES LIST -->
+            <div>
+                <div class="ios-section-header">Behavior Controls</div>
+                <div class="ios-card">
+                    
+                    <!-- Auto-Reply Master -->
+                    <div class="ios-list-row">
+                        <div class="row-left">
+                            <div class="row-icon" style="background: var(--ios-green-tint); color: var(--ios-green);">⚡</div>
+                            <div class="row-text">
+                                <h4>Auto-Reply</h4>
+                                <p>Master AI response toggle</p>
+                            </div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" id="swAutoReply" checked onchange="toggleSetting('autoReply', this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Only DM Mode -->
+                    <div class="ios-list-row">
+                        <div class="row-left">
+                            <div class="row-icon" style="background: var(--ios-blue-tint); color: var(--ios-blue);">💬</div>
+                            <div class="row-text">
+                                <h4>Only DM Mode</h4>
+                                <p>Ignore all group messages</p>
+                            </div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" id="swOnlyDm" onchange="toggleSetting('onlyDm', this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Self Tag in Groups -->
+                    <div class="ios-list-row">
+                        <div class="row-left">
+                            <div class="row-icon" style="background: var(--ios-purple-tint); color: var(--ios-purple);">🏷️</div>
+                            <div class="row-text">
+                                <h4>Self Tag (@Bot)</h4>
+                                <p>Reply when bot is mentioned in group</p>
+                            </div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" id="swSelfTag" checked onchange="toggleSetting('selfTag', this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- Swipe / Quote Reply -->
+                    <div class="ios-list-row">
+                        <div class="row-left">
+                            <div class="row-icon" style="background: var(--ios-orange-tint); color: var(--ios-orange);">↩️</div>
+                            <div class="row-text">
+                                <h4>Swipe Reply (Quotes)</h4>
+                                <p>Reply when bot's message is quoted</p>
+                            </div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" id="swSwipeReply" checked onchange="toggleSetting('swipeReply', this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
+                    <!-- All Tag in Groups -->
+                    <div class="ios-list-row">
+                        <div class="row-left">
+                            <div class="row-icon" style="background: rgba(255, 214, 10, 0.15); color: #ffd60a;">📢</div>
+                            <div class="row-text">
+                                <h4>All Tag (@all / @everyone)</h4>
+                                <p>Reply when group tag-all is used</p>
+                            </div>
+                        </div>
+                        <label class="ios-switch">
+                            <input type="checkbox" id="swAllTag" checked onchange="toggleSetting('allTag', this.checked)">
+                            <span class="switch-slider"></span>
+                        </label>
+                    </div>
+
                 </div>
-                <textarea id="systemPromptInput" class="prompt-textarea" placeholder="Enter system prompt for Nemotron 3.5 Bolt..."></textarea>
-                <button class="btn-save" onclick="saveSystemPrompt()">Save Prompt</button>
             </div>
+
+            <!-- 3. SYSTEM PROMPT (NOTES STYLE) -->
+            <div>
+                <div class="ios-section-header">System Prompt</div>
+                <div class="ios-card">
+                    <div class="prompt-box">
+                        <textarea id="promptArea" class="ios-textarea" placeholder="Enter instructions for Nemotron 3.5 Bolt..."></textarea>
+                        <div style="display: flex; justify-content: flex-end;">
+                            <button class="btn-primary" onclick="savePrompt()">Save Prompt</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
         </div>
 
-        <!-- RIGHT COLUMN: LIVE MESSAGE & EVENT FEED -->
-        <div class="card" style="height: 100%;">
-            <div class="feed-header">
-                <h2>📊 Live Activity & Conversation Feed</h2>
-                <div class="filter-group">
-                    <button id="filterAll" class="filter-btn active" onclick="setFeedFilter('all')">All (<span id="countAll">0</span>)</button>
-                    <button id="filterDm" class="filter-btn" onclick="setFeedFilter('private')">DMs (<span id="countDm">0</span>)</button>
-                    <button id="filterGroup" class="filter-btn" onclick="setFeedFilter('group')">Groups (<span id="countGroup">0</span>)</button>
+        <!-- RIGHT COLUMN: ACTIVITY FEED -->
+        <div class="column">
+            <div>
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0 0.5rem; margin-bottom: 0.4rem;">
+                    <span class="ios-section-header" style="margin-bottom: 0;">Live Activity (<span id="eventCount">0</span>)</span>
+                    <div class="ios-segmented" style="margin-bottom: 0; padding: 2px;">
+                        <button id="fAll" class="seg-btn active" style="padding: 4px 8px; font-size: 0.72rem;" onclick="setFilter('all')">All</button>
+                        <button id="fDm" class="seg-btn" style="padding: 4px 8px; font-size: 0.72rem;" onclick="setFilter('dm')">DMs</button>
+                        <button id="fGroup" class="seg-btn" style="padding: 4px 8px; font-size: 0.72rem;" onclick="setFilter('group')">Groups</button>
+                    </div>
                 </div>
-            </div>
 
-            <div id="messagesList" class="messages-list">
-                <div class="empty-state">
-                    Waiting for incoming messages or connection events...<br>
-                    <small>Jab koi private message ya group tag aayega, yahan real-time dikhega.</small>
+                <div class="ios-card" style="height: 100%;">
+                    <div id="feedList" class="feed-container">
+                        <div class="empty-feed">
+                            Waiting for incoming messages...<br>
+                            <small>Messages and replies will appear here in real time.</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="toast">Settings Saved!</div>
+    <div id="iosToast">Notification</div>
 
     <script>
-        const MASTER_PASSWORD = '19902009';
-        let currentFilter = 'all';
-        let allLogs = [];
-        let pollTimer = null;
+        const AUTH_PASS = '19902009';
+        let currentLinkMode = 'pairing';
+        let currentFeedFilter = 'all';
+        let feedLogs = [];
+        let syncTimer = null;
 
-        // --- AUTH LOGIC ---
-        function checkSavedAuth() {
-            const savedToken = localStorage.getItem('as_wa_token');
-            if (savedToken === MASTER_PASSWORD) {
+        // --- AUTH ---
+        function checkAuth() {
+            const token = localStorage.getItem('as_wa_token');
+            if (token === AUTH_PASS) {
                 document.getElementById('authOverlay').style.display = 'none';
-                startApp();
+                initDashboard();
             } else {
                 document.getElementById('authOverlay').style.display = 'flex';
             }
         }
 
-        async function verifyPassword() {
-            const input = document.getElementById('passwordInput').value.trim();
-            const err = document.getElementById('authError');
+        function submitPasscode() {
+            const input = document.getElementById('passcodeInput').value.trim();
+            const err = document.getElementById('passcodeError');
 
-            if (input === MASTER_PASSWORD) {
-                localStorage.setItem('as_wa_token', MASTER_PASSWORD);
+            if (input === AUTH_PASS) {
+                localStorage.setItem('as_wa_token', AUTH_PASS);
                 document.getElementById('authOverlay').style.display = 'none';
-                startApp();
+                initDashboard();
             } else {
                 err.style.display = 'block';
-                document.getElementById('passwordInput').focus();
+                document.getElementById('passcodeInput').value = '';
+                document.getElementById('passcodeInput').focus();
             }
         }
 
-        function logout() {
+        function lockDashboard() {
             localStorage.removeItem('as_wa_token');
             window.location.reload();
         }
 
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.style.display = 'block';
-            setTimeout(() => { toast.style.display = 'none'; }, 2500);
+        function toast(msg) {
+            const t = document.getElementById('iosToast');
+            t.innerText = msg;
+            t.style.display = 'block';
+            setTimeout(() => { t.style.display = 'none'; }, 2200);
         }
 
-        // --- APP INITIALIZATION ---
-        function startApp() {
-            const customUrl = localStorage.getItem('as_wa_custom_tunnel');
-            if (customUrl) {
-                document.getElementById('customTunnelUrl').value = customUrl;
-            }
-
-            fetchBotStatus();
-            if (!pollTimer) {
-                pollTimer = setInterval(fetchBotStatus, 3000);
+        // --- DASHBOARD INIT ---
+        function initDashboard() {
+            fetchStatus();
+            if (!syncTimer) {
+                syncTimer = setInterval(fetchStatus, 3000);
             }
         }
 
-        function saveCustomTunnelUrl() {
-            const url = document.getElementById('customTunnelUrl').value.trim();
-            if (url) {
-                localStorage.setItem('as_wa_custom_tunnel', url);
-            } else {
-                localStorage.removeItem('as_wa_custom_tunnel');
-            }
-            showToast('Relay URL Updated!');
-            fetchBotStatus();
+        // --- LINK MODE (PAIRING vs QR) ---
+        function switchLinkMode(mode) {
+            currentLinkMode = mode;
+            document.getElementById('tabPairing').classList.toggle('active', mode === 'pairing');
+            document.getElementById('tabQR').classList.toggle('active', mode === 'qr');
+            document.getElementById('boxPairingCode').style.display = mode === 'pairing' ? 'flex' : 'none';
+            document.getElementById('boxQR').style.display = mode === 'qr' ? 'flex' : 'none';
         }
 
-        // --- FETCH STATUS & SYNC ---
-        async function fetchBotStatus() {
-            const token = localStorage.getItem('as_wa_token') || MASTER_PASSWORD;
-            const customUrl = localStorage.getItem('as_wa_custom_tunnel') || '';
+        // --- REQUEST PAIRING CODE ---
+        async function requestPairing() {
+            const phone = document.getElementById('phoneInput').value.trim().replace(/[^0-9]/g, '');
+            const btn = document.getElementById('btnGetCode');
+            const errBox = document.getElementById('pairError');
+            const resultBox = document.getElementById('pairingCodeResult');
+            const codeVal = document.getElementById('dispPairingCode');
+
+            if (!phone || phone.length < 8) {
+                errBox.innerText = 'Enter valid phone number with country code.';
+                errBox.style.display = 'block';
+                return;
+            }
+
+            errBox.style.display = 'none';
+            btn.disabled = true;
+            btn.innerText = 'Requesting...';
 
             try {
-                const res = await fetch(`/api/status?token=${token}&botUrl=${encodeURIComponent(customUrl)}`);
+                const res = await fetch('/api/pairing', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${AUTH_PASS}`
+                    },
+                    body: JSON.stringify({ phoneNumber: phone })
+                });
+                const data = await res.json();
+                if (data.success && data.pairingCode) {
+                    codeVal.innerText = data.pairingCode;
+                    resultBox.style.display = 'flex';
+                    toast('Pairing code received!');
+                } else {
+                    errBox.innerText = data.error || 'Failed to get code. Make sure bot runner is active.';
+                    errBox.style.display = 'block';
+                }
+            } catch (err) {
+                errBox.innerText = 'Network error: ' + err.message;
+                errBox.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerText = 'Get Code';
+            }
+        }
+
+        function copyCode() {
+            const code = document.getElementById('dispPairingCode').innerText;
+            if (code && code !== '----') {
+                navigator.clipboard.writeText(code.replace('-', ''));
+                toast('Code Copied to Clipboard!');
+            }
+        }
+
+        // --- DISCONNECT / RE-PAIR DEVICE ---
+        async function disconnectDevice() {
+            if (!confirm('Are you sure you want to disconnect this WhatsApp account and re-link?')) {
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/disconnect', {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${AUTH_PASS}` }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    toast('Device disconnected! Ready to re-pair.');
+                    document.getElementById('viewConnected').style.display = 'none';
+                    document.getElementById('viewPairing').style.display = 'block';
+                    fetchStatus();
+                } else {
+                    alert(data.error || 'Failed to disconnect');
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+            }
+        }
+
+        // --- STATUS & LIVE FEED ---
+        async function fetchStatus() {
+            try {
+                const res = await fetch(`/api/status?token=${AUTH_PASS}`);
                 const data = await res.json();
 
-                renderStatus(data);
-            } catch (err) {
-                console.error('Fetch status failed:', err);
+                renderUI(data);
+            } catch (e) {
+                console.error(e);
                 updateStatusBadge('offline', 'Offline');
             }
         }
 
-        function updateStatusBadge(state, label) {
-            const dot = document.getElementById('statusDot');
-            const lbl = document.getElementById('statusLabel');
+        function updateStatusBadge(state, text) {
+            const dot = document.getElementById('navDot');
+            const lbl = document.getElementById('navStatusText');
             dot.className = 'dot ' + state;
-            lbl.innerText = label;
+            lbl.innerText = text;
         }
 
-        function renderStatus(data) {
-            const relayBadge = document.getElementById('relayStatusBadge');
-            const userPhone = document.getElementById('waUserPhone');
-            const userName = document.getElementById('waUserName');
+        function renderUI(data) {
+            const isConnected = data.online && data.status === 'connected';
 
-            if (data.botUrl) {
-                relayBadge.innerText = 'Tunnel: Active';
-                relayBadge.style.color = 'var(--wa-green)';
+            if (isConnected) {
+                updateStatusBadge('online', 'Connected');
+                document.getElementById('viewConnected').style.display = 'flex';
+                document.getElementById('viewPairing').style.display = 'none';
+
+                const phone = data.user?.id ? data.user.id.split(':')[0] : '8865074645';
+                const name = data.user?.name || data.user?.notify || 'WhatsApp Account';
+                document.getElementById('dispUserName').innerText = name;
+                document.getElementById('dispUserPhone').innerText = '+' + phone;
             } else {
-                relayBadge.innerText = 'Tunnel: Waiting for Runner...';
-                relayBadge.style.color = 'var(--accent-amber)';
-            }
+                document.getElementById('viewConnected').style.display = 'none';
+                document.getElementById('viewPairing').style.display = 'block';
 
-            if (data.online && data.status === 'connected') {
-                updateStatusBadge('online', 'Bot Online & Active');
-                if (data.user) {
-                    const phone = data.user.id ? data.user.id.split(':')[0] : '8865074645';
-                    const name = data.user.name || data.user.notify || 'Connected Account';
-                    userPhone.innerText = '+' + phone;
-                    userName.innerText = name;
+                if (data.status === 'qr_ready') {
+                    updateStatusBadge('offline', 'Pairing / QR Ready');
+                    if (data.qrCodeDataUrl) {
+                        document.getElementById('qrImage').src = data.qrCodeDataUrl;
+                    }
+                } else {
+                    updateStatusBadge('offline', data.message || 'Connecting...');
                 }
-            } else if (data.status === 'qr_ready') {
-                updateStatusBadge('offline', 'Waiting for Auth / QR');
-            } else {
-                updateStatusBadge('offline', data.message || 'Connecting...');
             }
 
-            // Sync switches if provided
+            // Sync Settings Switches
             if (data.settings) {
                 const s = data.settings;
-                document.getElementById('toggleAutoReply').checked = Boolean(s.autoReply);
-                document.getElementById('toggleOnlyDm').checked = Boolean(s.onlyDm);
-                document.getElementById('toggleSelfTag').checked = Boolean(s.selfTag);
-                document.getElementById('toggleSwipeReply').checked = Boolean(s.swipeReply);
-                document.getElementById('toggleAllTag').checked = Boolean(s.allTag);
+                document.getElementById('swAutoReply').checked = Boolean(s.autoReply);
+                document.getElementById('swOnlyDm').checked = Boolean(s.onlyDm);
+                document.getElementById('swSelfTag').checked = Boolean(s.selfTag);
+                document.getElementById('swSwipeReply').checked = Boolean(s.swipeReply);
+                document.getElementById('swAllTag').checked = Boolean(s.allTag);
 
-                const promptInput = document.getElementById('systemPromptInput');
-                if (!promptInput.dataset.modified && s.systemPrompt) {
-                    promptInput.value = s.systemPrompt;
+                const pArea = document.getElementById('promptArea');
+                if (!pArea.dataset.modified && s.systemPrompt) {
+                    pArea.value = s.systemPrompt;
                 }
             }
 
-            // Render Messages / Logs
-            allLogs = data.logs || [];
-            renderMessages();
+            // Render Feed
+            feedLogs = data.logs || [];
+            renderFeed();
         }
 
-        // --- UPDATE SETTING ---
-        async function updateSetting(key, val) {
-            const token = localStorage.getItem('as_wa_token') || MASTER_PASSWORD;
-            const customUrl = localStorage.getItem('as_wa_custom_tunnel') || '';
-
-            const payload = {
-                botUrl: customUrl,
-                [key]: val
-            };
-
+        // --- SETTINGS TOGGLE ---
+        async function toggleSetting(key, val) {
             try {
-                const res = await fetch(`/api/settings?token=${token}`, {
+                const res = await fetch(`/api/settings?token=${AUTH_PASS}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
+                    body: JSON.stringify({ [key]: val })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast(`${key} updated: ${val ? 'ON' : 'OFF'}`);
+                    toast(`${key} ${val ? 'Enabled' : 'Disabled'}`);
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        async function saveSystemPrompt() {
-            const prompt = document.getElementById('systemPromptInput').value.trim();
-            const token = localStorage.getItem('as_wa_token') || MASTER_PASSWORD;
-            const customUrl = localStorage.getItem('as_wa_custom_tunnel') || '';
-
+        async function savePrompt() {
+            const prompt = document.getElementById('promptArea').value.trim();
             try {
-                const res = await fetch(`/api/settings?token=${token}`, {
+                const res = await fetch(`/api/settings?token=${AUTH_PASS}`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ botUrl: customUrl, systemPrompt: prompt })
+                    body: JSON.stringify({ systemPrompt: prompt })
                 });
                 const data = await res.json();
                 if (data.success) {
-                    document.getElementById('systemPromptInput').dataset.modified = "true";
-                    showToast('System Prompt Saved to Nemotron!');
+                    document.getElementById('promptArea').dataset.modified = "true";
+                    toast('Prompt Saved to Nemotron!');
                 }
             } catch (e) {
                 console.error(e);
@@ -1012,41 +1160,31 @@
         }
 
         // --- FEED RENDERING ---
-        function setFeedFilter(filter) {
-            currentFilter = filter;
-            document.getElementById('filterAll').classList.toggle('active', filter === 'all');
-            document.getElementById('filterDm').classList.toggle('active', filter === 'private');
-            document.getElementById('filterGroup').classList.toggle('active', filter === 'group');
-            renderMessages();
+        function setFilter(f) {
+            currentFeedFilter = f;
+            document.getElementById('fAll').classList.toggle('active', f === 'all');
+            document.getElementById('fDm').classList.toggle('active', f === 'dm');
+            document.getElementById('fGroup').classList.toggle('active', f === 'group');
+            renderFeed();
         }
 
-        function renderMessages() {
-            const container = document.getElementById('messagesList');
-            const countAll = document.getElementById('countAll');
-            const countDm = document.getElementById('countDm');
-            const countGroup = document.getElementById('countGroup');
+        function renderFeed() {
+            const container = document.getElementById('feedList');
+            const incoming = feedLogs.filter(l => l.type === 'incoming');
+            document.getElementById('eventCount').innerText = incoming.length;
 
-            // Count incoming message cards
-            const incomingEvents = allLogs.filter(l => l.type === 'incoming');
-            const dmEvents = incomingEvents.filter(l => l.details && !l.details.isGroup);
-            const groupEvents = incomingEvents.filter(l => l.details && l.details.isGroup);
-
-            countAll.innerText = incomingEvents.length;
-            countDm.innerText = dmEvents.length;
-            countGroup.innerText = groupEvents.length;
-
-            let filtered = incomingEvents;
-            if (currentFilter === 'private') {
-                filtered = dmEvents;
-            } else if (currentFilter === 'group') {
-                filtered = groupEvents;
+            let filtered = incoming;
+            if (currentFeedFilter === 'dm') {
+                filtered = incoming.filter(l => l.details && !l.details.isGroup);
+            } else if (currentFeedFilter === 'group') {
+                filtered = incoming.filter(l => l.details && l.details.isGroup);
             }
 
             if (filtered.length === 0) {
                 container.innerHTML = `
-                    <div class="empty-state">
-                        No messages yet under this category.<br>
-                        <small>Jab koi message aayega, yahan real-time dikhega.</small>
+                    <div class="empty-feed">
+                        Waiting for incoming messages...<br>
+                        <small>Messages and replies will appear here in real time.</small>
                     </div>
                 `;
                 return;
@@ -1054,45 +1192,44 @@
 
             container.innerHTML = filtered.map(log => {
                 const d = log.details || {};
-                const chatType = d.chatType || 'PRIVATE';
-                const triggerReason = d.triggerReason || '';
                 const sender = d.senderName || d.from || 'User';
                 const text = d.text || log.message;
+                const reason = d.triggerReason || '';
 
-                // Match associated reply from logs
-                const nextReply = allLogs.find(l => l.type === 'reply' && l.id > log.id && (l.details?.to === d.from || l.time === log.time));
+                // Find associated Nemotron reply
+                const nextReply = feedLogs.find(l => l.type === 'reply' && l.id > log.id && (l.details?.to === d.from || l.time === log.time));
                 const replyText = nextReply?.details?.reply || null;
 
-                let cardClass = 'private';
-                let badgeLabel = 'DM';
+                let badgeClass = 'badge-dm';
+                let badgeText = 'DM';
 
                 if (d.isGroup) {
-                    if (triggerReason.includes('ALL')) {
-                        cardClass = 'group-all';
-                        badgeLabel = '@ALL TAG';
-                    } else if (triggerReason.includes('QUOTE') || triggerReason.includes('SWIPE')) {
-                        cardClass = 'group-swipe';
-                        badgeLabel = 'SWIPE REPLY';
+                    if (reason.includes('ALL')) {
+                        badgeClass = 'badge-all';
+                        badgeText = '@ALL';
+                    } else if (reason.includes('QUOTE') || reason.includes('SWIPE')) {
+                        badgeClass = 'badge-swipe';
+                        badgeText = 'SWIPE';
                     } else {
-                        cardClass = 'group-tag';
-                        badgeLabel = '@BOT TAG';
+                        badgeClass = 'badge-tag';
+                        badgeText = '@BOT';
                     }
                 }
 
                 return `
-                    <div class="msg-card ${cardClass}">
-                        <div class="msg-meta">
-                            <span class="sender-tag">
+                    <div class="msg-bubble">
+                        <div class="msg-top">
+                            <span class="msg-author">
                                 <span>${escapeHtml(sender)}</span>
-                                <span class="badge-pill">${badgeLabel}</span>
+                                <span class="ios-badge ${badgeClass}">${badgeText}</span>
                             </span>
-                            <span class="time-label">${log.time}</span>
+                            <span class="msg-time">${log.time}</span>
                         </div>
-                        <div class="user-text">${escapeHtml(text)}</div>
+                        <div class="msg-body">${escapeHtml(text)}</div>
                         ${replyText ? `
-                            <div class="ai-reply-box">
-                                <span class="ai-label">Nemotron 3.5 Bolt Reply</span>
-                                <span class="ai-text">${escapeHtml(replyText)}</span>
+                            <div class="reply-bubble">
+                                <span class="reply-lbl">Nemotron 3.5 Bolt</span>
+                                <span class="reply-txt">${escapeHtml(replyText)}</span>
                             </div>
                         ` : ''}
                     </div>
@@ -1109,8 +1246,8 @@
                 .replace(/"/g, '&quot;');
         }
 
-        // On load
-        checkSavedAuth();
+        // Run
+        checkAuth();
     </script>
 </body>
 </html>
